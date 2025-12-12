@@ -375,24 +375,60 @@
         </a>
     </nav>
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <script>
-        // Функция переключения вкладок
+        // Инициализируем приложение
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand(); 
+
+        // === ФУНКЦИЯ: Узнаем, кто зашел ===
+        function initUser() {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+
+                // 1. Меняем Имя
+                const nameElement = document.querySelector('.user-meta h2');
+                if (nameElement) {
+                    nameElement.innerText = user.username ? `@${user.username}` : user.first_name;
+                }
+
+                // 2. Меняем Аватарку
+                const avatarElement = document.querySelector('.avatar');
+                if (user.photo_url && avatarElement) {
+                    avatarElement.src = user.photo_url;
+                }
+
+                // 3. Красим статус бар
+                tg.setHeaderColor('#121212'); 
+            }
+        }
+
+        initUser();
+
+        // === ФУНКЦИЯ: Переключение вкладок ===
         function switchTab(screenId, navElement) {
-            // 1. Скрываем все экраны
+            // Скрываем все экраны
             const screens = document.querySelectorAll('.screen');
             screens.forEach(screen => screen.classList.remove('active-screen'));
 
-            // 2. Показываем нужный экран
+            // Показываем нужный
             document.getElementById(screenId).classList.add('active-screen');
 
-            // 3. Обновляем подсветку кнопок меню
+            // Подсветка кнопок
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(item => item.classList.remove('active'));
             navElement.classList.add('active');
+            
+            // Вибрация (Haptic)
+            if(tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
         }
 
-        // Тут можно добавить логику обновления баланса или таймера
-        console.log("LEGION System Loaded. Welcome, Admin.");
+        console.log("LEGION System v1.1 Loaded.");
     </script>
 </body>
+
 </html>

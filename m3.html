@@ -424,7 +424,10 @@
             // Вибрация (Haptic)
             if(tg.HapticFeedback) {
                 tg.HapticFeedback.impactOccurred('light');
-            // === ЛОГИКА ТЕСТА VIBE CODE ===
+            }  // <--- ПЕРВАЯ СКОБКА (Закрывает if)
+        }      // <--- ВТОРАЯ СКОБКА (Закрывает функцию switchTab)
+
+        // === ЛОГИКА ТЕСТА VIBE CODE ===
         
         // База вопросов (пока 3 штуки для теста)
         const questions = [
@@ -518,11 +521,11 @@
             // Вибрация успеха
             if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         }
-        }
 
         console.log("LEGION System v1.1 Loaded.");
     </script>
 </body>
 
 </html>
+
 

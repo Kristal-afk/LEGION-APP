@@ -310,7 +310,7 @@
                     VIBE CODE
                 </div>
                 <p class="card-desc">Пройди тест из 7 вопросов и узнай свой истинный Архетип.</p>
-                <button class="action-btn">Начать тест</button>
+                <button class="action-btn" onclick="startTest()">Начать тест</button>
             </div>
 
             <h3 style="margin: 20px 0 10px; color: #fff;">Игровая Зона</h3>
@@ -424,7 +424,100 @@
             // Вибрация (Haptic)
             if(tg.HapticFeedback) {
                 tg.HapticFeedback.impactOccurred('light');
+            // === ЛОГИКА ТЕСТА VIBE CODE ===
+        
+        // База вопросов (пока 3 штуки для теста)
+        const questions = [
+            {
+                text: "Твой идеальный вечер пятницы?",
+                answers: [
+                    { text: "Шумная тусовка в клубе", type: "Extravert" },
+                    { text: "Книга, плед и тишина", type: "Introvert" },
+                    { text: "Работа над проектом", type: "Strategist" }
+                ]
+            },
+            {
+                text: "Как ты принимаешь решения?",
+                answers: [
+                    { text: "Слушаю только сердце", type: "Artist" },
+                    { text: "Взвешиваю все ЗА и ПРОТИВ", type: "Strategist" },
+                    { text: "Спрашиваю совета друзей", type: "Extravert" }
+                ]
+            },
+            {
+                text: "Твоя суперсила — это...",
+                answers: [
+                    { text: "Умение убеждать", type: "Leader" },
+                    { text: "Креативность", type: "Artist" },
+                    { text: "Дисциплина", type: "Strategist" }
+                ]
             }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+
+        function startTest() {
+            currentQuestion = 0;
+            userAnswers = [];
+            // Вибрация
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            
+            // Находим карточку теста, чтобы заменить в ней контент
+            const card = document.querySelector('#home-screen .glass-card'); // Берем первую карточку
+            
+            // Формируем HTML ответов
+            let answersHtml = '';
+            q.answers.forEach(ans => {
+                answersHtml += `<button class="game-item" style="width:100%; margin-top:10px; text-align:left;" onclick="nextQuestion('${ans.type}')">${ans.text}</button>`;
+            });
+
+            // Вставляем вопрос и ответы в карточку
+            card.innerHTML = `
+                <div class="card-title">Вопрос ${currentQuestion + 1}/${questions.length}</div>
+                <p class="card-desc" style="font-size:16px; color:#fff; margin-bottom:15px;">${q.text}</p>
+                ${answersHtml}
+            `;
+        }
+
+        function nextQuestion(type) {
+            userAnswers.push(type);
+            
+            if(tg.HapticFeedback) tg.HapticFeedback.selectionChanged(); // Вибрация при выборе
+
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            // Упрощенная логика финала (просто берет последний ответ как результат)
+            // Позже мы сюда добавим сложную формулу психотипов
+            const finalType = userAnswers[userAnswers.length - 1]; 
+            
+            const card = document.querySelector('#home-screen .glass-card');
+            
+            card.innerHTML = `
+                <div style="text-align:center;">
+                    <i class="fa-solid fa-crown" style="font-size:40px; color:var(--accent-gold); margin-bottom:15px;"></i>
+                    <h2 style="color:var(--accent-gold); margin-bottom:10px;">ТВОЙ АРХЕТИП: ${finalType}</h2>
+                    <p style="font-size:14px; color:#ccc;">Ты — редкий вид игрока. Твоя сила в уникальном видении мира.</p>
+                    <button class="action-btn" onclick="location.reload()">Перезагрузить</button>
+                </div>
+            `;
+            
+            // Вибрация успеха
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }
         }
 
         console.log("LEGION System v1.1 Loaded.");
@@ -432,3 +525,4 @@
 </body>
 
 </html>
+

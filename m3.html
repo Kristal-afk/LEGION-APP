@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LEGION Ecosystem</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* === ЗДЕСЬ НАСТРАИВАЕМ ЦВЕТА И ШРИФТЫ === */
+        :root {
+            --bg-color: #121212;          /* Основной фон (Темный графит) */
+            --accent-gold: #D4AF37;       /* Золото (Luxury Gold) */
+            --text-white: #FFFFFF;        /* Белый текст */
+            --text-grey: #8E8E93;         /* Серый текст (iOS style) */
+            --glass-bg: rgba(28, 28, 30, 0.65); /* Цвет стекла */
+            --glass-border: rgba(255, 255, 255, 0.1); /* Граница стекла */
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Обнуление стилей */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            /* === СЮДА ВСТАВИТЬ ССЫЛКУ НА ФОНОВУЮ КАРТИНКУ === */
+            /* Сейчас стоит временный фон. Замени url(...) на свою картинку */
+            background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding-bottom: 90px; /* Отступ под нижнее меню */
+        }
+
+        /* Затемнение фона (Оверлей) */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 18, 18, 0.85); /* 0.85 - это сила затемнения */
+            z-index: -1;
+        }
+
+        /* Контейнер приложения */
+        .app-container {
+            max-width: 600px; /* Ограничение ширины для ПК */
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        /* === ШАПКА ПРОФИЛЯ === */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-gold);
+            /* Тень для объема */
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .user-meta h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .user-meta p {
+            font-size: 13px;
+            color: var(--accent-gold); /* Цвет психотипа */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .balance-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            text-align: right;
+        }
+
+        .balance-amount {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .balance-label {
+            font-size: 10px;
+            color: var(--text-grey);
+        }
+
+        /* === БЕГУЩАЯ СТРОКА (TICKER) === */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background: linear-gradient(90deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.2) 50%, rgba(212,175,55,0.1) 100%);
+            border-top: 1px solid rgba(212,175,55, 0.3);
+            border-bottom: 1px solid rgba(212,175,55, 0.3);
+            padding: 8px 0;
+            margin-bottom: 24px;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .ticker {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            padding-right: 50px;
+            font-size: 14px;
+            color: var(--accent-gold);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+        }
+
+        /* === ОСНОВНЫЕ БЛОКИ (СТЕКЛО) === */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: transform 0.2s ease;
+        }
+        
+        .glass-card:active {
+            transform: scale(0.98); /* Эффект нажатия */
+        }
+
+        .card-title {
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--text-grey);
+            line-height: 1.4;
+        }
+
+        /* Сетка для игр */
+        .games-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .game-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .game-icon {
+            font-size: 24px;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+        }
+
+        /* Кнопка действия */
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        /* === НИЖНЯЯ НАВИГАЦИЯ (TABBAR) === */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 15px; /* Учет полоски iOS home indicator */
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-grey);
+            font-size: 10px;
+            text-decoration: none;
+            width: 60px;
+        }
+
+        .nav-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+            transition: 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--accent-gold);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        }
+        
+        /* Скрытие экранов для переключения табов */
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .screen.active-screen {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <div class="app-container">
+        
+        <header class="header">
+            <div class="user-info">
+                <img src="https://via.placeholder.com/150" alt="Avatar" class="avatar">
+                <div class="user-meta">
+                    <h2>Алекс</h2>
+                    <p>Стратег</p>
+                </div>
+            </div>
+            <div class="balance-box">
+                <span class="balance-amount">12,500</span>
+                <span class="balance-label">LEGION COIN</span>
+            </div>
+        </header>
+
+        <div class="ticker-wrap">
+            <div class="ticker">
+                <span class="ticker-item">🔥 РОЗЫГРЫШ IPHONE 16 В ВОСКРЕСЕНЬЕ!</span>
+                <span class="ticker-item">💎 ВСТУПАЙ В КЛАН "GOLDEN HORDE"</span>
+                <span class="ticker-item">🚀 LEGION SUPER APP — БУДУЩЕЕ ЗДЕСЬ</span>
+                <span class="ticker-item">🔥 РОЗЫГРЫШ IPHONE 16 В ВОСКРЕСЕНЬЕ!</span> </div>
+        </div>
+
+        <div id="home-screen" class="screen active-screen">
+            
+            <div class="glass-card">
+                <div class="card-title">
+                    <i class="fa-solid fa-fingerprint" style="color: var(--accent-gold);"></i>
+                    VIBE CODE
+                </div>
+                <p class="card-desc">Пройди тест из 7 вопросов и узнай свой истинный Архетип.</p>
+                <button class="action-btn">Начать тест</button>
+            </div>
+
+            <h3 style="margin: 20px 0 10px; color: #fff;">Игровая Зона</h3>
+            <div class="games-grid">
+                <div class="glass-card game-item">
+                    <i class="fa-solid fa-chess-rook game-icon"></i>
+                    <h4>Цитадель</h4>
+                    <span style="font-size:10px; color:var(--text-grey);">Solo Mode</span>
+                </div>
+                <div class="glass-card game-item">
+                    <i class="fa-solid fa-users game-icon"></i>
+                    <h4>Колизей</h4>
+                    <span style="font-size:10px; color:var(--text-grey);">Team Battle</span>
+                </div>
+                <div class="glass-card game-item">
+                    <i class="fa-solid fa-gem game-icon"></i>
+                    <h4>Слоты</h4>
+                    <span style="font-size:10px; color:var(--text-grey);">Испытай удачу</span>
+                </div>
+                <div class="glass-card game-item">
+                    <i class="fa-solid fa-comments game-icon"></i>
+                    <h4>Рулетка</h4>
+                    <span style="font-size:10px; color:var(--text-grey);">Знакомства</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="top-screen" class="screen">
+            <div class="glass-card">
+                <div class="card-title">🏆 Лидеры Недели</div>
+                <p class="card-desc">Здесь будет список лучших игроков и кланов.</p>
+            </div>
+            <div class="glass-card" style="text-align: center;">
+                <h1 style="color: var(--accent-gold); font-size: 40px;">TOP 10</h1>
+                <p>Раздел в разработке...</p>
+            </div>
+        </div>
+
+        <div id="profile-screen" class="screen">
+            <div class="glass-card">
+                <div class="card-title">⚙️ Настройки</div>
+                <p class="card-desc">Управление аккаунтом и кошельком.</p>
+                <button class="action-btn">Подключить Wallet</button>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="switchTab('home-screen', this)">
+            <i class="fa-solid fa-house"></i>
+            <span>Главная</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchTab('top-screen', this)">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Топ</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchTab('profile-screen', this)">
+            <i class="fa-solid fa-user"></i>
+            <span>Профиль</span>
+        </a>
+    </nav>
+
+    <script>
+        // Функция переключения вкладок
+        function switchTab(screenId, navElement) {
+            // 1. Скрываем все экраны
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active-screen'));
+
+            // 2. Показываем нужный экран
+            document.getElementById(screenId).classList.add('active-screen');
+
+            // 3. Обновляем подсветку кнопок меню
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            navElement.classList.add('active');
+        }
+
+        // Тут можно добавить логику обновления баланса или таймера
+        console.log("LEGION System Loaded. Welcome, Admin.");
+    </script>
+</body>
+</html>

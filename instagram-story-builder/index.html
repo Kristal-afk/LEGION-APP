@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор Instagram Stories</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Панель инструментов -->
+        <aside class="toolbar">
+            <h2>🛠 Инструменты</h2>
+            
+            <div class="tool-section">
+                <h3>Фон</h3>
+                <div class="color-picker-group">
+                    <input type="color" id="bgColor" value="#667eea" title="Цвет фона">
+                    <button id="gradientBtn" class="btn-small">Градиент</button>
+                    <button id="resetBgBtn" class="btn-small">Сброс</button>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <h3>Добавить элемент</h3>
+                <button id="addTextBtn" class="btn-primary">➕ Текст</button>
+                <button id="addImageBtn" class="btn-primary">🖼 Изображение</button>
+                <button id="addStickerBtn" class="btn-primary">⭐ Стикеры</button>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+            </div>
+
+            <div class="tool-section">
+                <h3>Стикеры</h3>
+                <div class="sticker-grid">
+                    <button class="sticker-btn" data-sticker="🔥">🔥</button>
+                    <button class="sticker-btn" data-sticker="❤️">❤️</button>
+                    <button class="sticker-btn" data-sticker="✨">✨</button>
+                    <button class="sticker-btn" data-sticker="🎉">🎉</button>
+                    <button class="sticker-btn" data-sticker="💯">💯</button>
+                    <button class="sticker-btn" data-sticker="🌟">🌟</button>
+                    <button class="sticker-btn" data-sticker="📍">📍</button>
+                    <button class="sticker-btn" data-sticker="👆">👆</button>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <h3>Выделенный элемент</h3>
+                <button id="deleteElementBtn" class="btn-danger" disabled>🗑 Удалить</button>
+                <button id="duplicateElementBtn" class="btn-secondary" disabled>📋 Копировать</button>
+                <div class="layer-controls">
+                    <button id="bringForwardBtn" class="btn-small" disabled>⬆ Вверх</button>
+                    <button id="sendBackwardBtn" class="btn-small" disabled>⬇ Вниз</button>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <h3>Экспорт</h3>
+                <button id="exportBtn" class="btn-success">💾 Сохранить</button>
+            </div>
+
+            <div class="tool-section info">
+                <p><small>💡 Перетаскивайте элементы мышкой<br>🖱 Колесо мыши - изменение размера</small></p>
+            </div>
+        </aside>
+
+        <!-- Рабочая область -->
+        <main class="workspace">
+            <div class="canvas-container">
+                <div id="storyCanvas" class="story-canvas">
+                    <!-- Элементы будут добавляться сюда -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Панель свойств -->
+        <aside class="properties-panel" id="propertiesPanel" style="display: none;">
+            <h2>⚙ Свойства</h2>
+            
+            <div class="property-group" id="textProperties">
+                <h3>Текст</h3>
+                <textarea id="textContent" rows="3" placeholder="Введите текст..."></textarea>
+                <div class="control-row">
+                    <label>Шрифт:</label>
+                    <select id="fontFamily">
+                        <option value="Arial">Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Comic Sans MS">Comic Sans MS</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <label>Размер:</label>
+                    <input type="range" id="fontSize" min="12" max="120" value="32">
+                    <span id="fontSizeValue">32px</span>
+                </div>
+                <div class="control-row">
+                    <label>Цвет:</label>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+                <div class="control-row">
+                    <label>Жирный:</label>
+                    <input type="checkbox" id="fontWeight">
+                </div>
+                <div class="control-row">
+                    <label>Курсив:</label>
+                    <input type="checkbox" id="fontStyle">
+                </div>
+            </div>
+
+            <div class="property-group" id="imageProperties">
+                <h3>Изображение</h3>
+                <div class="control-row">
+                    <label>Прозрачность:</label>
+                    <input type="range" id="imageOpacity" min="0" max="100" value="100">
+                    <span id="opacityValue">100%</span>
+                </div>
+                <div class="control-row">
+                    <label>Скругление:</label>
+                    <input type="range" id="borderRadius" min="0" max="100" value="0">
+                    <span id="radiusValue">0px</span>
+                </div>
+            </div>
+
+            <div class="property-group" id="commonProperties">
+                <h3>Общие</h3>
+                <div class="control-row">
+                    <label>Поворот:</label>
+                    <input type="range" id="rotation" min="0" max="360" value="0">
+                    <span id="rotationValue">0°</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

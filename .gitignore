@@ -1,1 +1,1 @@
-Nothing should be ignored in this case, as only a single HTML file (`carousel.html`) was added without any build artifacts, dependencies, or temporary files.
+Nothing needs to be added to .gitignore for this change list. The only file added is `carousel-3d.html`, which is a source file and should not be ignored.

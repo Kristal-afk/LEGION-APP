@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Carousel Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border: 3px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .upload-section.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: red;
+            transform: scale(1.1);
+        }
+
+        .controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 1.1em;
+        }
+
+        .scroll-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #dee2e6;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .settings-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-item input[type="range"] {
+            width: 150px;
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        .carousel-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            overflow: hidden;
+        }
+
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        /* Horizontal Scroll */
+        .carousel-horizontal {
+            display: flex;
+            gap: 20px;
+            height: 100%;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            padding: 10px 0;
+        }
+
+        .carousel-horizontal::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .carousel-horizontal::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .carousel-horizontal::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        .carousel-item {
+            flex-shrink: 0;
+            width: 300px;
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .carousel-item:hover {
+            transform: scale(1.05);
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Vertical Scroll */
+        .carousel-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            padding: 0 10px;
+        }
+
+        .carousel-vertical::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .carousel-vertical::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .carousel-vertical::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        /* Grid Scroll */
+        .carousel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            height: 100%;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding: 10px;
+        }
+
+        .carousel-grid .carousel-item {
+            width: 100%;
+            height: 250px;
+        }
+
+        /* 3D Cover Flow */
+        .carousel-coverflow {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .coverflow-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .coverflow-item {
+            position: absolute;
+            width: 300px;
+            height: 350px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .coverflow-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Cube 3D */
+        .carousel-cube {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1200px;
+            overflow: hidden;
+        }
+
+        .cube-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: rotateCube 20s infinite linear;
+        }
+
+        @keyframes rotateCube {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        .cube-item {
+            position: absolute;
+            width: 300px;
+            height: 350px;
+            left: 50%;
+            top: 50%;
+            transform-origin: center center;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backface-visibility: visible;
+        }
+
+        .cube-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Fade Carousel */
+        .carousel-fade {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .fade-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .fade-item.active {
+            opacity: 1;
+        }
+
+        .fade-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Navigation Buttons */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #333;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .nav-btn:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-prev {
+            left: 20px;
+        }
+
+        .nav-next {
+            right: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 1.3em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .carousel-wrapper {
+                height: 300px;
+            }
+
+            .carousel-item {
+                width: 250px;
+            }
+
+            .coverflow-item,
+            .cube-item {
+                width: 250px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image Carousel Preview</h1>
+
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">
+                Перетащите изображения сюда или нажмите кнопку ниже
+                <br>
+                <small>Максимум 8 изображений (JPG, PNG, GIF)</small>
+            </div>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Выбрать файлы
+            </button>
+            <input type="file" id="fileInput" multiple accept="image/*">
+            
+            <div class="image-preview" id="imagePreview"></div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls">
+            <div class="control-group">
+                <label class="control-label">Тип скролла:</label>
+                <div class="scroll-options">
+                    <button class="option-btn active" data-type="horizontal">➡️ Горизонтальный</button>
+                    <button class="option-btn" data-type="vertical">⬇️ Вертикальный</button>
+                    <button class="option-btn" data-type="grid">📊 Сетка</button>
+                    <button class="option-btn" data-type="coverflow">🎭 3D Cover Flow</button>
+                    <button class="option-btn" data-type="cube">🎲 3D Куб</button>
+                    <button class="option-btn" data-type="fade">🌅 Fade</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Настройки:</label>
+                <div class="settings-row">
+                    <div class="setting-item">
+                        <label>Автоматическая прокрутка:</label>
+                        <input type="checkbox" id="autoPlay" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label>Скорость:</label>
+                        <input type="range" id="speed" min="1" max="10" value="3">
+                        <span id="speedValue">3</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>Пауза при наведении:</label>
+                        <input type="checkbox" id="pauseOnHover" checked>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carousel Container -->
+        <div class="carousel-container">
+            <div class="carousel-wrapper" id="carouselWrapper">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state-icon">🖼️</div>
+                    <div class="empty-state-text">
+                        Загрузите изображения, чтобы увидеть карусель
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let images = [];
+        let currentType = 'horizontal';
+        let autoPlayInterval = null;
+        let currentIndex = 0;
+
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const carouselWrapper = document.getElementById('carouselWrapper');
+        const emptyState = document.getElementById('emptyState');
+        const autoPlayCheckbox = document.getElementById('autoPlay');
+        const speedRange = document.getElementById('speed');
+        const speedValue = document.getElementById('speedValue');
+        const pauseOnHoverCheckbox = document.getElementById('pauseOnHover');
+        const optionBtns = document.querySelectorAll('.option-btn');
+
+        // Drag and Drop
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            const newFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+            
+            if (images.length + newFiles.length > 8) {
+                alert('Можно загрузить максимум 8 изображений!');
+                return;
+            }
+
+            newFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    images.push(e.target.result);
+                    updatePreview();
+                    updateCarousel();
+                };
+                reader.readAsDataURL(file);
+            });
+
+            fileInput.value = '';
+        }
+
+        function removeImage(index) {
+            images.splice(index, 1);
+            updatePreview();
+            updateCarousel();
+        }
+
+        function updatePreview() {
+            imagePreview.innerHTML = '';
+            images.forEach((img, index) => {
+                const item = document.createElement('div');
+                item.className = 'preview-item';
+                item.innerHTML = `
+                    <img src="${img}" alt="Preview ${index + 1}">
+                    <button class="remove-btn" onclick="removeImage(${index})">×</button>
+                `;
+                imagePreview.appendChild(item);
+            });
+        }
+
+        function updateCarousel() {
+            if (images.length === 0) {
+                carouselWrapper.innerHTML = `
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-state-icon">🖼️</div>
+                        <div class="empty-state-text">
+                            Загрузите изображения, чтобы увидеть карусель
+                        </div>
+                    </div>
+                `;
+                stopAutoPlay();
+                return;
+            }
+
+            renderCarousel();
+            
+            if (autoPlayCheckbox.checked && currentType !== 'grid') {
+                startAutoPlay();
+            }
+        }
+
+        function renderCarousel() {
+            let html = '';
+
+            switch(currentType) {
+                case 'horizontal':
+                    html = `
+                        <div class="carousel-horizontal" id="carouselContent">
+                            ${images.map((img, i) => `
+                                <div class="carousel-item">
+                                    <img src="${img}" alt="Image ${i + 1}">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="nav-btn nav-prev" onclick="scrollHorizontal(-1)">❮</button>
+                        <button class="nav-btn nav-next" onclick="scrollHorizontal(1)">❯</button>
+                    `;
+                    break;
+
+                case 'vertical':
+                    html = `
+                        <div class="carousel-vertical" id="carouselContent">
+                            ${images.map((img, i) => `
+                                <div class="carousel-item">
+                                    <img src="${img}" alt="Image ${i + 1}">
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    break;
+
+                case 'grid':
+                    html = `
+                        <div class="carousel-grid" id="carouselContent">
+                            ${images.map((img, i) => `
+                                <div class="carousel-item">
+                                    <img src="${img}" alt="Image ${i + 1}">
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    break;
+
+                case 'coverflow':
+                    html = `
+                        <div class="carousel-coverflow" id="carouselContent">
+                            <div class="coverflow-container" id="coverflowContainer">
+                                ${images.map((img, i) => `
+                                    <div class="coverflow-item" data-index="${i}">
+                                        <img src="${img}" alt="Image ${i + 1}">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                    setTimeout(updateCoverflow, 100);
+                    break;
+
+                case 'cube':
+                    const angleStep = 360 / images.length;
+                    const radius = 400;
+                    html = `
+                        <div class="carousel-cube" id="carouselContent">
+                            <div class="cube-container" id="cubeContainer">
+                                ${images.map((img, i) => {
+                                    const angle = angleStep * i;
+                                    return `
+                                        <div class="cube-item" style="transform: rotateY(${angle}deg) translateZ(${radius}px);">
+                                            <img src="${img}" alt="Image ${i + 1}">
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'fade':
+                    html = `
+                        <div class="carousel-fade" id="carouselContent">
+                            ${images.map((img, i) => `
+                                <div class="fade-item ${i === 0 ? 'active' : ''}">
+                                    <img src="${img}" alt="Image ${i + 1}">
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    break;
+            }
+
+            carouselWrapper.innerHTML = html;
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            const carouselContent = document.getElementById('carouselContent');
+            if (!carouselContent) return;
+
+            if (pauseOnHoverCheckbox.checked) {
+                carouselContent.addEventListener('mouseenter', () => {
+                    if (autoPlayCheckbox.checked) {
+                        stopAutoPlay();
+                    }
+                });
+
+                carouselContent.addEventListener('mouseleave', () => {
+                    if (autoPlayCheckbox.checked && currentType !== 'grid') {
+                        startAutoPlay();
+                    }
+                });
+            }
+        }
+
+        function scrollHorizontal(direction) {
+            const carousel = document.getElementById('carouselContent');
+            if (!carousel) return;
+
+            const scrollAmount = 320;
+            carousel.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+
+        function updateCoverflow() {
+            const container = document.getElementById('coverflowContainer');
+            if (!container) return;
+
+            const items = container.querySelectorAll('.coverflow-item');
+            const centerX = container.offsetWidth / 2;
+            const centerY = container.offsetHeight / 2;
+
+            items.forEach((item, index) => {
+                const offset = index - currentIndex;
+                const position = offset * 200;
+                const rotateY = offset * -30;
+                const scale = Math.max(0.6, 1 - Math.abs(offset) * 0.2);
+                const zIndex = items.length - Math.abs(offset);
+
+                item.style.transform = `translateX(${position}px) scale(${scale}) rotateY(${rotateY}deg)`;
+                item.style.zIndex = zIndex;
+            });
+        }
+
+        function startAutoPlay() {
+            stopAutoPlay();
+            
+            const speed = 11 - parseInt(speedRange.value);
+            const interval = speed * 1000;
+
+            if (currentType === 'fade') {
+                autoPlayInterval = setInterval(() => {
+                    const items = document.querySelectorAll('.fade-item');
+                    if (items.length === 0) return;
+
+                    items[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % items.length;
+                    items[currentIndex].classList.add('active');
+                }, interval);
+            } else if (currentType === 'coverflow') {
+                autoPlayInterval = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    updateCoverflow();
+                }, interval);
+            } else if (currentType === 'horizontal') {
+                autoPlayInterval = setInterval(() => {
+                    scrollHorizontal(1);
+                }, interval);
+            }
+        }
+
+        function stopAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+        }
+
+        // Event Listeners for Controls
+        optionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                optionBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentType = btn.dataset.type;
+                currentIndex = 0;
+                updateCarousel();
+            });
+        });
+
+        autoPlayCheckbox.addEventListener('change', () => {
+            if (autoPlayCheckbox.checked && images.length > 0 && currentType !== 'grid') {
+                startAutoPlay();
+            } else {
+                stopAutoPlay();
+            }
+        });
+
+        speedRange.addEventListener('input', () => {
+            speedValue.textContent = speedRange.value;
+            if (autoPlayCheckbox.checked && images.length > 0 && currentType !== 'grid') {
+                startAutoPlay();
+            }
+        });
+
+        pauseOnHoverCheckbox.addEventListener('change', () => {
+            setupEventListeners();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (currentType === 'coverflow') {
+                if (e.key === 'ArrowLeft') {
+                    currentIndex = Math.max(0, currentIndex - 1);
+                    updateCoverflow();
+                } else if (e.key === 'ArrowRight') {
+                    currentIndex = Math.min(images.length - 1, currentIndex + 1);
+                    updateCoverflow();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
